@@ -11,15 +11,16 @@
             android:id="@+id/spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/input"
-            android:hint="请输入课程编号"
+            android:completionThreshold="1"
+            android:hint="需要查些什么？"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content" />
         <Button
             android:id="@+id/send"
-            android:text="确定"
+            android:text="查询"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>

@@ -83,7 +83,6 @@ public class LoginActivity extends AppCompatActivity {
             // 自动勾选保存密码选项
             remember.setChecked(true);
         }
-
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -134,17 +133,17 @@ public class LoginActivity extends AppCompatActivity {
         if (requestCode == 1) {
             if (grantResults.length > 0) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    Toast.makeText(LoginActivity.this, "写入权限 get √", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "写入权限 √", Toast.LENGTH_SHORT).show();
                 else
-                    Toast.makeText(LoginActivity.this, "写入权限denied ×\n程序无法正常使用", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "写入权限 ×\n程序无法正常使用", Toast.LENGTH_SHORT).show();
                 if (grantResults[1] == PackageManager.PERMISSION_GRANTED)
-                    Toast.makeText(LoginActivity.this, "读取权限 get √", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "读取权限 √", Toast.LENGTH_SHORT).show();
                 else
-                    Toast.makeText(LoginActivity.this, "读取权限denied ×\n程序无法正常使用", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "读取权限 ×\n程序无法正常使用", Toast.LENGTH_SHORT).show();
             }
         }
     }
-
+    // 发送登陆信息
     public void Post() {
         // TODO Auto-generated method stub
         new Thread(new Runnable() {
@@ -154,7 +153,7 @@ public class LoginActivity extends AppCompatActivity {
                     String PostAdd = url + "/entrance1.asp";
                     URL u = new URL(PostAdd);
                     //post
-                    String sendstr = "stu_no=" + stu_no + "&passwd=" + passwd + "&GetCode=" + GetCode;
+                    String sendStr = "stu_no=" + stu_no + "&passwd=" + passwd + "&GetCode=" + GetCode;
                     Log.d("1", "run: " + stu_no + " " + passwd + " " + GetCode);
 
                     HttpURLConnection connection = (HttpURLConnection) u.openConnection();
@@ -164,7 +163,7 @@ public class LoginActivity extends AppCompatActivity {
                     connection.setInstanceFollowRedirects(false);//自动重定向
                     connection.setRequestProperty("Cookie", cookie1);
                     OutputStream out = connection.getOutputStream();
-                    out.write(sendstr.getBytes());
+                    out.write(sendStr.getBytes());
                     out.flush();
                     out.close();
                     Reader r = new InputStreamReader(connection.getInputStream(), "GB2312");
@@ -206,7 +205,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         }).start();
     }
-
+    // 获取验证码
     public void getImg() {
         try {
             // TODO Auto-generated method stub
@@ -230,7 +229,6 @@ public class LoginActivity extends AppCompatActivity {
             output.flush();
             output.close();
             input.close();
-//                System.out.println("已经下载了验证码图片了！");
             CodeImg.post(new Runnable() {
                 @Override
                 public void run() {
@@ -243,7 +241,7 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
+    // 获取Cookie
     public List<String> GetHttpResponseHeader() {
         try {
             URL obj = new URL("http://192.168.240.168/xuanke/edu_login.asp");

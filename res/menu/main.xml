@@ -7,6 +7,6 @@
         android:id="@+id/kechengbiao"
         android:title="课程表"/>
     <item
-        android:id="@+id/xuanke"
-        android:title="选课"/>
+        android:id="@+id/clear_history"
+        android:title="清除查询历史"/>
 </menu>
