@@ -64,6 +64,18 @@ public class LoginActivity extends AppCompatActivity {
         text2.setText("");  // 030821
         text3 = (EditText) findViewById(R.id.code);
         CodeImg = (ImageView) findViewById(R.id.image);
+        // 点击验证码刷新
+        CodeImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getImg();
+                    }
+                }).start();
+            }
+        });
         text = (TextView) findViewById(R.id.text);
         remember = (CheckBox) findViewById(R.id.remember_pass);
         // 申请运行时权限
@@ -218,7 +230,6 @@ public class LoginActivity extends AppCompatActivity {
             connection.setRequestProperty("Cookie", cookie1);
 
             DataInputStream input = new DataInputStream(connection.getInputStream());
-
             file = getImgStorage("codeimg.jpg");
             FileOutputStream output = new FileOutputStream(file);
             byte[] b = new byte[1024];
@@ -232,6 +243,7 @@ public class LoginActivity extends AppCompatActivity {
             CodeImg.post(new Runnable() {
                 @Override
                 public void run() {
+                    CodeImg.setImageURI(null);
                     CodeImg.setImageURI(Uri.fromFile(file));
                     Log.d("1", "img run code");
                 }
@@ -246,6 +258,7 @@ public class LoginActivity extends AppCompatActivity {
         try {
             URL obj = new URL("http://192.168.240.168/xuanke/edu_login.asp");
             HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            conn.setConnectTimeout(1000);
             Map<String, List<String>> map = conn.getHeaderFields();
             return map.get("Set-Cookie");
         } catch (Exception e) {

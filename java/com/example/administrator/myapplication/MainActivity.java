@@ -95,10 +95,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                         // 过滤无关信息，改造表格
                         query = query.replaceAll("备注</td></tr>", "备注</td><td>限制数</td><td>已选数</td></tr>");
+                        query = query.replaceAll("<td>必<br>修</td><td>选<br>修</td>", "");
                         query = query.replaceAll("<td>选课<br>人数</td>", "");
                         query = query.replaceAll("<td><img [\\w\\W]{0,140}></td>", "</td>");
                         Log.d("1", "run: " + query);
-                        // 查找对应课程的人数
+                        // 查找对应课程的课程编号
                         String regex = "<td>([a-zA-z0-9]{2,})</td>"; // 课程编号(考虑MOOC的情况，前面有MC两个字母)
                         Pattern pattern = Pattern.compile(regex);
                         Matcher matcher = pattern.matcher(query);
@@ -123,8 +124,7 @@ public class MainActivity extends AppCompatActivity {
                         /* 将获得的限制人数和已选人数的数据添加到表格 */
                         // 分割表格的每一行
                         String[] part = query.split("</tr>");
-                        for (String temp : part)
-                            Log.d("1", "part: " + temp);
+                        part[0] = part[0].replaceAll("<td><input [\\w\\W]{0,50}修\"></td>", "");
                         // 将人数信息添加到每一行末尾
                         for (int i = 1; i < part.length - 1; i++) {
                             int limit_num = limit.get(i - 1);
