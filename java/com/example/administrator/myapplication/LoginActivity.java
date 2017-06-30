@@ -61,9 +61,7 @@ public class LoginActivity extends AppCompatActivity {
         Button button2 = (Button) findViewById(R.id.button2);
         textView = (TextView) findViewById(R.id.show_tips);
         text1 = (EditText) findViewById(R.id.username);
-        text1.setText("");  // 2015150285
         text2 = (EditText) findViewById(R.id.passwd);
-        text2.setText("");  // 030821
         text3 = (EditText) findViewById(R.id.code);
         CodeImg = (ImageView) findViewById(R.id.image);
         // 点击验证码刷新
@@ -92,8 +90,8 @@ public class LoginActivity extends AppCompatActivity {
         String account = save.getString("account", "");
         String password = save.getString("password", "");
         if (!"".equals(account)) {
-            text1.setText(account);  // 2015150285
-            text2.setText(password);  // 030821
+            text1.setText(account);
+            text2.setText(password);
             // 自动勾选保存密码选项
             remember.setChecked(true);
         }
