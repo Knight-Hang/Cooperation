@@ -33,21 +33,21 @@ import java.util.regex.Pattern;
 public class MainActivity extends AppCompatActivity {
 
     private LocalActivityManager lam;
-    WebView web;
-    WebView web2;
-    WebView web3;
-    Button button;
-    AutoCompleteTextView input;
-    Spinner spinner;
-    String cookie;
-    String url;
-    String xuanke="";
-    String kechengbiao="";
-    String query;
-    String QueryStr;
-    String query_encode;
-    String temp_history;
-    String classes = "2015计算机科学与技术01\n" +
+    private WebView web;
+    private WebView web2;
+    private WebView web3;
+    private Button button;
+    private AutoCompleteTextView input;
+    private Spinner spinner;
+    private String cookie;
+    private String url;
+    private String xuanke="";
+    private String kechengbiao="";
+    private String query;
+    private String QueryStr;
+    private String query_encode;
+    private String temp_history;
+    private String classes = "2015计算机科学与技术01\n" +
             "2015计算机科学与技术02\n" +
             "2015计算机科学与技术03\n" +
             "2015计算机科学与技术04\n" +
@@ -56,14 +56,14 @@ public class MainActivity extends AppCompatActivity {
             "2015软件工程02\n" +
             "2015软件工程03\n" +
             "2015网络工程01\n";
-    int type;
+    private int type;
 
-    List<String> history = new ArrayList<>();
-    ArrayList<Integer> main_limit = new ArrayList<>();
-    ArrayList<Integer> main_chosen = new ArrayList<>();
-    ArrayList<Integer> limit = new ArrayList<>();
-    ArrayList<Integer> chosen = new ArrayList<>();
-    ArrayAdapter<String> adapter;
+    private List<String> history = new ArrayList<>();
+    private ArrayList<Integer> main_limit = new ArrayList<>();
+    private ArrayList<Integer> main_chosen = new ArrayList<>();
+    private ArrayList<Integer> limit = new ArrayList<>();
+    private ArrayList<Integer> chosen = new ArrayList<>();
+    private ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -291,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // 获得相应课程的人数信息
-    public String getRequest(String str) {
+    private String getRequest(String str) {
         try {
             String getshowresult = url + str;
             URL u = new URL(getshowresult);
@@ -321,7 +321,6 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override
     protected void onResume() {
-        // 这个也一样
         lam.dispatchResume();
         super.onResume();
     }

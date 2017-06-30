@@ -8,12 +8,9 @@ import android.webkit.WebView;
 import android.widget.Button;
 
 public class OfflineActivity extends AppCompatActivity {
-    WebView web;
-    Button button1;
-    Button button2;
-    Button button3;
-    String xuanke = "";
-    String kechengbiao = "";
+    private WebView web;
+    private String xuanke = "";
+    private String kechengbiao = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,9 +24,9 @@ public class OfflineActivity extends AppCompatActivity {
                 "</p>";
         web.getSettings().setDefaultTextEncodingName("UTF-8");//设置默认为utf-8
         web.loadData(temp, "text/html; charset=UTF-8", null);//这种写法可以正确解码
-        button1 = (Button) findViewById(R.id.xuanke);
-        button2 = (Button) findViewById(R.id.kechengbiao);
-        button3 = (Button) findViewById(R.id.clear);
+        Button button1 = (Button) findViewById(R.id.xuanke);
+        Button button2 = (Button) findViewById(R.id.kechengbiao);
+        Button button3 = (Button) findViewById(R.id.clear);
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
