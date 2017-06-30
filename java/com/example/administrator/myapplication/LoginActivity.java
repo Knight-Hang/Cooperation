@@ -36,21 +36,21 @@ import java.util.List;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
-    Button button;
-    ImageView CodeImg;
-    EditText text1;
-    EditText text2;
-    EditText text3;
-    TextView text;
-    CheckBox remember;
-    String stu_no = "";
-    String passwd = "";
-    String GetCode = "";
-    String cookie1 = "";
-    String cookie2 = "";
-    String htmlbuffer = "";
-    String url = "http://192.168.240.168/xuanke";
-    File file;
+    private Button button;
+    private ImageView CodeImg;
+    private TextView textView;
+    private EditText text1;
+    private EditText text2;
+    private EditText text3;
+    private CheckBox remember;
+    private String stu_no = "";
+    private String passwd = "";
+    private String GetCode = "";
+    private String cookie1 = "";
+    private String cookie2 = "";
+    private String htmlbuffer = "";
+    private String url = "http://192.168.240.168/xuanke";
+    private File file;
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -58,6 +58,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_layout);
         button = (Button) findViewById(R.id.button);
+        Button button2 = (Button) findViewById(R.id.button2);
+        textView = (TextView) findViewById(R.id.show_tips);
         text1 = (EditText) findViewById(R.id.username);
         text1.setText("");  // 2015150285
         text2 = (EditText) findViewById(R.id.passwd);
@@ -76,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
                 }).start();
             }
         });
-        text = (TextView) findViewById(R.id.text);
+        TextView text = (TextView) findViewById(R.id.text);
         remember = (CheckBox) findViewById(R.id.remember_pass);
         // 申请运行时权限
         if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -110,9 +112,15 @@ public class LoginActivity extends AppCompatActivity {
                     //获取验证码
                     getImg();
                 } else {
-                    // 跳转到离线活动
-                    Intent intent = new Intent(LoginActivity.this, OfflineActivity.class);
-                    startActivity(intent);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            button.setEnabled(false);
+                            Toast.makeText(getApplicationContext(),
+                                    "不在内部网环境或者无网络\n仅离线模式可用", Toast.LENGTH_SHORT).show();
+                            textView.setText("Tips: \n当前网络环境无法使用在线服务\n仅离线模式可用");
+                        }
+                    });
                 }
             }
         }).start();
@@ -137,6 +145,14 @@ public class LoginActivity extends AppCompatActivity {
                 //登陆成功后获取选课信息
             }
         });
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 跳转到离线活动
+                Intent intent = new Intent(LoginActivity.this, OfflineActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     // 权限申请结果反馈
@@ -156,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
     // 发送登陆信息
-    public void Post() {
+    void Post() {
         // TODO Auto-generated method stub
         new Thread(new Runnable() {
             @Override
@@ -218,7 +234,7 @@ public class LoginActivity extends AppCompatActivity {
         }).start();
     }
     // 获取验证码
-    public void getImg() {
+    void getImg() {
         try {
             // TODO Auto-generated method stub
             double a = Math.random();
@@ -254,7 +270,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
     // 获取Cookie
-    public List<String> GetHttpResponseHeader() {
+    List<String> GetHttpResponseHeader() {
         try {
             URL obj = new URL("http://192.168.240.168/xuanke/edu_login.asp");
             HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
@@ -267,7 +283,7 @@ public class LoginActivity extends AppCompatActivity {
         return null;
     }
 
-    public File getImgStorage(String name) {
+    File getImgStorage(String name) {
         return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), name);
     }
 }
