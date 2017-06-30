@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/showresult"
-        android:title="选课结果"/>
-    <item
-        android:id="@+id/kechengbiao"
-        android:title="课程表"/>
-    <item
         android:id="@+id/clear_history"
         android:title="清除查询历史"/>
 </menu>

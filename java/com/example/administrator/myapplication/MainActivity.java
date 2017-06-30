@@ -1,5 +1,6 @@
 package com.example.administrator.myapplication;
 
+import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TabHost;
 import android.widget.Toast;
 
 import java.io.InputStreamReader;
@@ -29,21 +31,36 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
+
+    private LocalActivityManager lam;
     WebView web;
+    WebView web2;
+    WebView web3;
     Button button;
     AutoCompleteTextView input;
     Spinner spinner;
     String cookie;
     String url;
-    String xuanke;
-    String kechengbiao;
+    String xuanke="";
+    String kechengbiao="";
     String query;
     String QueryStr;
     String query_encode;
     String temp_history;
+    String classes = "2015计算机科学与技术01\n" +
+            "2015计算机科学与技术02\n" +
+            "2015计算机科学与技术03\n" +
+            "2015计算机科学与技术04\n" +
+            "2015计算机科学与技术05\n" +
+            "2015软件工程01\n" +
+            "2015软件工程02\n" +
+            "2015软件工程03\n" +
+            "2015网络工程01\n";
     int type;
 
     List<String> history = new ArrayList<>();
+    ArrayList<Integer> main_limit = new ArrayList<>();
+    ArrayList<Integer> main_chosen = new ArrayList<>();
     ArrayList<Integer> limit = new ArrayList<>();
     ArrayList<Integer> chosen = new ArrayList<>();
     ArrayAdapter<String> adapter;
@@ -56,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
         input = (AutoCompleteTextView) findViewById(R.id.input);
         spinner = (Spinner) findViewById(R.id.spinner);
         web = (WebView) findViewById(R.id.web);
+        web2 = (WebView) findViewById(R.id.web_view_2);
+        web3 = (WebView) findViewById(R.id.web_view_3);
         Intent intent = getIntent();
         cookie = intent.getStringExtra("cookie");
         url = intent.getStringExtra("url");
@@ -68,6 +87,26 @@ public class MainActivity extends AppCompatActivity {
                 SaveBuff(); // 保存结果到本地
             }
         }).start();
+        /* 设置选项卡 */
+        lam = new LocalActivityManager(MainActivity.this, false);
+        TabHost tabHost = (TabHost) findViewById(android.R.id.tabhost);
+        lam.dispatchCreate(savedInstanceState);
+        tabHost.setup(lam);
+        // 第1个页面
+        TabHost.TabSpec tab1 = tabHost.newTabSpec("tab1")
+                .setIndicator("查课")
+                .setContent(R.id.tab_1);
+        tabHost.addTab(tab1);
+        // 第2个页面
+        TabHost.TabSpec tab2 = tabHost.newTabSpec("tab2")
+                .setIndicator("选课结果")
+                .setContent(R.id.tab_2);
+        tabHost.addTab(tab2);
+        // 第3个页面
+        TabHost.TabSpec tab3 = tabHost.newTabSpec("tab3")
+                .setIndicator("课程表")
+                .setContent(R.id.tab_3);
+        tabHost.addTab(tab3);
         // 构造下拉菜单选项
         setSpinner();
         // 登陆成功显示页面
@@ -78,6 +117,11 @@ public class MainActivity extends AppCompatActivity {
         get_history();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, history);
         input.setAdapter(adapter);
+        // 加载页面信息
+        while (xuanke.equals("")){}
+        web2.loadData(xuanke, "text/html; charset=UTF-8", null);
+        while (kechengbiao.equals("")){}
+        web3.loadData(kechengbiao, "text/html; charset=UTF-8", null);
         // 查询按钮
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,10 +138,11 @@ public class MainActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                         // 过滤无关信息，改造表格
-                        query = query.replaceAll("备注</td></tr>", "备注</td><td>限制数</td><td>已选数</td></tr>");
+                        query = query.replaceAll("备注</td></tr>", "备注</td><td>主选限制数</td><td>主选已选数</td><td>非主选限制数</td><td>非主选已选数</td></tr>");
                         query = query.replaceAll("<td>必<br>修</td><td>选<br>修</td>", "");
                         query = query.replaceAll("<td>选课<br>人数</td>", "");
                         query = query.replaceAll("<td><img [\\w\\W]{0,140}></td>", "</td>");
+                        query = query.replaceAll("<td><input [\\w\\W]{0,50}修\"></td>","");
                         Log.d("1", "run: " + query);
                         // 查找对应课程的课程编号
                         String regex = "<td>([a-zA-z0-9]{2,})</td>"; // 课程编号(考虑MOOC的情况，前面有MC两个字母)
@@ -109,14 +154,20 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("1", "课程编号 group1: " + matcher.group(1));
                             Log.d("1", "num page: " + num_status);
                             // 抓取人数信息并保存
-                            String num_regex = "<br>限制人数：([\\d]+)&nbsp;&nbsp;已选人数：([\\d]+)</body>";
+                            String num_regex = "<br>主选学生限制人数：([\\d]+)&nbsp;&nbsp;主选学生已选人数：([\\d]+)<br>非主选学生限制人数：([\\d]+)&nbsp;&nbsp;非主选学生已选人数：([\\d]+)</body>";
                             Pattern pattern1 = Pattern.compile(num_regex);
                             Matcher matcher1 = pattern1.matcher(num_status);
                             while (matcher1.find()) {
-                                int limit_num = Integer.parseInt(matcher1.group(1));
-                                int chosen_num = Integer.parseInt(matcher1.group(2));
+                                int main_limit_num = Integer.parseInt(matcher1.group(1));
+                                int main_chosen_num = Integer.parseInt(matcher1.group(2));
+                                int limit_num = Integer.parseInt(matcher1.group(3));
+                                int chosen_num = Integer.parseInt(matcher1.group(4));
+                                main_limit.add(main_limit_num);
+                                main_chosen.add(main_chosen_num);
                                 limit.add(limit_num);
                                 chosen.add(chosen_num);
+                                Log.d("1", "main_limit num: " + main_limit_num);
+                                Log.d("1", "main_chosen num: " + main_chosen_num);
                                 Log.d("1", "limit num: " + limit_num);
                                 Log.d("1", "chosen num: " + chosen_num);
                             }
@@ -124,14 +175,16 @@ public class MainActivity extends AppCompatActivity {
                         /* 将获得的限制人数和已选人数的数据添加到表格 */
                         // 分割表格的每一行
                         String[] part = query.split("</tr>");
-                        part[0] = part[0].replaceAll("<td><input [\\w\\W]{0,50}修\"></td>", "");
                         // 将人数信息添加到每一行末尾
                         for (int i = 1; i < part.length - 1; i++) {
+                            int main_limit_num = main_limit.get(i - 1);
+                            int main_chosen_num = main_chosen.get(i - 1);
                             int limit_num = limit.get(i - 1);
                             int chosen_num = chosen.get(i - 1);
-                            part[i] += "<td>" + limit_num + "</td><td>" + chosen_num + "</td></tr>";
+                            part[i] += "<td>" + main_limit_num + "</td><td>" + main_chosen_num + "</td><td>"
+                                    + limit_num + "</td><td>" + chosen_num + "</td></tr>";
                             // 高亮显示可选课程
-                            if (chosen_num < limit_num) {
+                            if (main_chosen_num < main_limit_num) {
                                 part[i] = part[i].replaceAll("<tr>", "<tr bgcolor=\"yellow\">");
                             }
                         }
@@ -169,7 +222,8 @@ public class MainActivity extends AppCompatActivity {
     // 获取历史记录
     private void get_history() {
         SharedPreferences history_data = getSharedPreferences("history", MODE_PRIVATE);
-        temp_history = history_data.getString("history", "");
+        temp_history = classes;
+        temp_history += history_data.getString("history", "");
         if (!"".equals(temp_history)) {
             String[] temp = temp_history.split("\n");
             Collections.addAll(history, temp);
@@ -191,14 +245,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            // 选课结果
-            case R.id.showresult:
-                web.loadData(xuanke, "text/html; charset=UTF-8", null);//这种写法可以正确解码
-                break;
-            // 课程表
-            case R.id.kechengbiao:
-                web.loadData(kechengbiao, "text/html; charset=UTF-8", null);//这种写法可以正确解码
-                break;
             // 清除历史
             case R.id.clear_history:
                 SharedPreferences save_history = getSharedPreferences("history", MODE_PRIVATE);
@@ -266,5 +312,17 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return null;
+    }
+    @Override
+    protected void onPause() {
+        // 重写的OnPause方法必须有，漏掉会错
+        lam.dispatchPause(isFinishing());
+        super.onPause();
+    }
+    @Override
+    protected void onResume() {
+        // 这个也一样
+        lam.dispatchResume();
+        super.onResume();
     }
 }
