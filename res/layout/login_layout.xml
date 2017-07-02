@@ -6,41 +6,44 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:text="Username: "/>
+        android:layout_marginTop="20dp"
+        android:text="Username: " />
+
     <EditText
         android:id="@+id/username"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="username"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+
         android:inputType="number" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:text="Password: "/>
+        android:layout_marginTop="10dp"
+        android:text="Password: " />
+
     <EditText
         android:id="@+id/passwd"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="passwd"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+
         android:inputType="textPassword" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:text="Verification Code: "/>
+        android:layout_marginTop="10dp"
+        android:text="Verification Code: " />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -49,29 +52,29 @@
 
         <EditText
             android:id="@+id/code"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="10dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="10dp"
             android:layout_weight="1"
-            android:hint="code"
+
             android:inputType="number" />
 
         <ImageView
             android:id="@+id/image"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="20dp"
             android:layout_width="210px"
             android:layout_height="100px"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="20dp"
             android:scaleType="fitCenter" />
     </LinearLayout>
 
     <CheckBox
         android:id="@+id/remember_pass"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:text="记住密码" />
 
     <LinearLayout
@@ -99,8 +102,8 @@
 
     <TextView
         android:id="@+id/show_tips"
-        android:layout_margin="20dp"
-        android:layout_gravity="center"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="20dp" />
 </LinearLayout>

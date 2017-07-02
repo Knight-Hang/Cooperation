@@ -201,17 +201,17 @@ public class LoginActivity extends AppCompatActivity {
                     r.close();
                     Looper.prepare();
                     if (htmlbuffer.contains("验证码输入错误")) {
-                        Toast toast = Toast.makeText(getBaseContext(), "验证码输入错误,请重新输入", Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(getBaseContext(), "验证码错误,请重新输入", Toast.LENGTH_SHORT);
                         toast.show();
                         //获取验证码
                         getImg();
                     } else if (htmlbuffer.contains("密码错")) {
-                        Toast toast = Toast.makeText(getBaseContext(), "密码错，请重新输入", Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(getBaseContext(), "密码错误，请重新输入", Toast.LENGTH_SHORT);
                         toast.show();
                         //获取验证码
                         getImg();
                     } else if (htmlbuffer.contains("学号错")) {
-                        Toast toast = Toast.makeText(getBaseContext(), "学号错，请重新输入", Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(getBaseContext(), "学号错误，请重新输入", Toast.LENGTH_SHORT);
                         toast.show();
                         //获取验证码
                         getImg();
@@ -274,6 +274,9 @@ public class LoginActivity extends AppCompatActivity {
             HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
             conn.setConnectTimeout(1000);
             Map<String, List<String>> map = conn.getHeaderFields();
+            for (Map.Entry<String, List<String>> header : conn.getHeaderFields().entrySet()) {
+                Log.d("1", "Header: " + header.getKey() + "=" + header.getValue());
+            }
             return map.get("Set-Cookie");
         } catch (Exception e) {
             e.printStackTrace();
