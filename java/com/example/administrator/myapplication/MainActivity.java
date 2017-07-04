@@ -126,6 +126,11 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // 清除之前储存的信息
+                main_limit.clear();
+                main_chosen.clear();
+                limit.clear();
+                chosen.clear();
                 QueryStr = input.getText().toString();
                 new Thread(new Runnable() {
                     @Override
