@@ -35,7 +35,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
     private Button button;
     private ImageView CodeImg;
     private TextView textView;
@@ -57,26 +57,16 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_layout);
+        // 获取组件
         button = (Button) findViewById(R.id.button);
         Button button2 = (Button) findViewById(R.id.button2);
+        button.setOnClickListener(this);
+        button2.setOnClickListener(this);
         textView = (TextView) findViewById(R.id.show_tips);
         text1 = (EditText) findViewById(R.id.username);
         text2 = (EditText) findViewById(R.id.passwd);
         text3 = (EditText) findViewById(R.id.code);
         CodeImg = (ImageView) findViewById(R.id.image);
-        // 点击验证码刷新
-        CodeImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getImg();
-                    }
-                }).start();
-            }
-        });
-        TextView text = (TextView) findViewById(R.id.text);
         remember = (CheckBox) findViewById(R.id.remember_pass);
         // 申请运行时权限
         if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -84,17 +74,36 @@ public class LoginActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(LoginActivity.this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
         }
-
         // 自动填充已保存的账号和密码
-        final SharedPreferences save = getSharedPreferences("data", MODE_PRIVATE);
-        String account = save.getString("account", "");
-        String password = save.getString("password", "");
-        if (!"".equals(account)) {
-            text1.setText(account);
-            text2.setText(password);
-            // 自动勾选保存密码选项
-            remember.setChecked(true);
+        fill_info();
+        // 准备验证码并显示
+        show_code_image();
+        // 点击验证码刷新
+        CodeImg.setOnClickListener(this);
+    }
+
+    // 权限申请结果反馈
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 1) {
+            if (grantResults.length > 0) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    Toast.makeText(LoginActivity.this, "写入权限 √", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(LoginActivity.this, "写入权限 ×\n程序无法正常使用", Toast.LENGTH_SHORT).show();
+                if (grantResults[1] == PackageManager.PERMISSION_GRANTED)
+                    Toast.makeText(LoginActivity.this, "读取权限 √", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(LoginActivity.this, "读取权限 ×\n程序无法正常使用", Toast.LENGTH_SHORT).show();
+            }
         }
+    }
+
+    /*
+     * 具体功能的实现方法
+     */
+    // 初始化验证码
+    private void show_code_image() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -122,14 +131,30 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         }).start();
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+    }
+    // 自动填写账号和密码
+    private void fill_info() {
+        SharedPreferences save = getSharedPreferences("data", MODE_PRIVATE);
+        String account = save.getString("account", "");
+        String password = save.getString("password", "");
+        if (!"".equals(account)) {
+            text1.setText(account);
+            text2.setText(password);
+            // 自动勾选保存密码选项
+            remember.setChecked(true);
+        }
+    }
+    // 点击事件
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button:
                 // 获取输入框信息
                 stu_no = text1.getText().toString();
                 passwd = text2.getText().toString();
                 GetCode = text3.getText().toString();
                 // 检查保存密码的勾选状态
+                SharedPreferences save = getSharedPreferences("data", MODE_PRIVATE);
                 SharedPreferences.Editor editor = save.edit();
                 if (remember.isChecked()) {
                     editor.putString("account", stu_no);
@@ -141,32 +166,22 @@ public class LoginActivity extends AppCompatActivity {
                 //post登陆
                 Post();
                 //登陆成功后获取选课信息
-            }
-        });
-        button2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                break;
+            case R.id.button2:
                 // 跳转到离线活动
                 Intent intent = new Intent(LoginActivity.this, OfflineActivity.class);
                 startActivity(intent);
-            }
-        });
-    }
-
-    // 权限申请结果反馈
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 1) {
-            if (grantResults.length > 0) {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    Toast.makeText(LoginActivity.this, "写入权限 √", Toast.LENGTH_SHORT).show();
-                else
-                    Toast.makeText(LoginActivity.this, "写入权限 ×\n程序无法正常使用", Toast.LENGTH_SHORT).show();
-                if (grantResults[1] == PackageManager.PERMISSION_GRANTED)
-                    Toast.makeText(LoginActivity.this, "读取权限 √", Toast.LENGTH_SHORT).show();
-                else
-                    Toast.makeText(LoginActivity.this, "读取权限 ×\n程序无法正常使用", Toast.LENGTH_SHORT).show();
-            }
+                break;
+            case R.id.image:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getImg();
+                    }
+                }).start();
+                break;
+            default:
+                break;
         }
     }
     // 发送登陆信息
@@ -178,7 +193,7 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     String PostAdd = url + "/entrance1.asp";
                     URL u = new URL(PostAdd);
-                    //post
+                    // post
                     String sendStr = "stu_no=" + stu_no + "&passwd=" + passwd + "&GetCode=" + GetCode;
                     Log.d("1", "run: " + stu_no + " " + passwd + " " + GetCode);
 
@@ -186,7 +201,7 @@ public class LoginActivity extends AppCompatActivity {
                     connection.setRequestMethod("POST");
                     connection.setDoOutput(true);
                     connection.setDoInput(true);
-                    connection.setInstanceFollowRedirects(false);//自动重定向
+                    connection.setInstanceFollowRedirects(false);   //自动重定向
                     connection.setRequestProperty("Cookie", cookie1);
                     OutputStream out = connection.getOutputStream();
                     out.write(sendStr.getBytes());
@@ -203,20 +218,20 @@ public class LoginActivity extends AppCompatActivity {
                     if (htmlbuffer.contains("验证码输入错误")) {
                         Toast toast = Toast.makeText(getBaseContext(), "验证码错误,请重新输入", Toast.LENGTH_SHORT);
                         toast.show();
-                        //获取验证码
+                        // 重新获取验证码
                         getImg();
                     } else if (htmlbuffer.contains("密码错")) {
                         Toast toast = Toast.makeText(getBaseContext(), "密码错误，请重新输入", Toast.LENGTH_SHORT);
                         toast.show();
-                        //获取验证码
+                        // 重新获取验证码
                         getImg();
                     } else if (htmlbuffer.contains("学号错")) {
                         Toast toast = Toast.makeText(getBaseContext(), "学号错误，请重新输入", Toast.LENGTH_SHORT);
                         toast.show();
-                        //获取验证码
+                        // 重新获取验证码
                         getImg();
                     } else {
-                        //跳转到下个活动
+                        // 跳转到下个活动
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.putExtra("cookie", cookie1);
                         intent.putExtra("url", url);
@@ -244,7 +259,7 @@ public class LoginActivity extends AppCompatActivity {
             connection.setRequestProperty("Cookie", cookie1);
 
             DataInputStream input = new DataInputStream(connection.getInputStream());
-            file = getImgStorage("codeimg.jpg");
+            file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"codeimg.jpg");
             FileOutputStream output = new FileOutputStream(file);
             byte[] b = new byte[1024];
             int len;
@@ -282,10 +297,6 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return null;
-    }
-
-    File getImgStorage(String name) {
-        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), name);
     }
 }
 
