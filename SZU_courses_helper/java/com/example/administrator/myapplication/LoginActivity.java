@@ -88,11 +88,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if (requestCode == 1) {
             if (grantResults.length > 0) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    Toast.makeText(LoginActivity.this, "写入权限 √", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "写入权限 √\n请重启应用", Toast.LENGTH_SHORT).show();
                 else
                     Toast.makeText(LoginActivity.this, "写入权限 ×\n程序无法正常使用", Toast.LENGTH_SHORT).show();
                 if (grantResults[1] == PackageManager.PERMISSION_GRANTED)
-                    Toast.makeText(LoginActivity.this, "读取权限 √", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "读取权限 √\n请重启应用", Toast.LENGTH_SHORT).show();
                 else
                     Toast.makeText(LoginActivity.this, "读取权限 ×\n程序无法正常使用", Toast.LENGTH_SHORT).show();
             }
@@ -107,7 +107,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         new Thread(new Runnable() {
             @Override
             public void run() {
-                //获取cookies
+                // 获取cookies
                 List<String> cookies = GetHttpResponseHeader();
                 if (cookies != null) {
                     cookie1 = (cookies.get(0));
@@ -116,7 +116,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     cookie2 = cookie2.substring(0, cookie2.indexOf(';'));
                     cookie1 = cookie1 + "; " + cookie2;
                     Log.d("1", "run: " + cookie1);
-                    //获取验证码
+                    // 获取验证码
                     getImg();
                 } else {
                     runOnUiThread(new Runnable() {
@@ -163,9 +163,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     editor.clear();
                 }
                 editor.apply();
-                //post登陆
-                Post();
-                //登陆成功后获取选课信息
+                Post(); // post登陆
+                // 登陆成功后获取选课信息
                 break;
             case R.id.button2:
                 // 跳转到离线活动
@@ -186,7 +185,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
     // 发送登陆信息
     void Post() {
-        // TODO Auto-generated method stub
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -201,7 +199,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     connection.setRequestMethod("POST");
                     connection.setDoOutput(true);
                     connection.setDoInput(true);
-                    connection.setInstanceFollowRedirects(false);   //自动重定向
+                    connection.setInstanceFollowRedirects(false);   // 自动重定向
                     connection.setRequestProperty("Cookie", cookie1);
                     OutputStream out = connection.getOutputStream();
                     out.write(sendStr.getBytes());
@@ -210,26 +208,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     Reader r = new InputStreamReader(connection.getInputStream(), "GB2312");
                     int c;
                     htmlbuffer = "";
-                    while ((c = r.read()) != -1) {
-                        htmlbuffer += (char) c;
-                    }
+                    while ((c = r.read()) != -1) {  htmlbuffer += (char) c; }
                     r.close();
                     Looper.prepare();
                     if (htmlbuffer.contains("验证码输入错误")) {
                         Toast toast = Toast.makeText(getBaseContext(), "验证码错误,请重新输入", Toast.LENGTH_SHORT);
                         toast.show();
-                        // 重新获取验证码
-                        getImg();
+                        getImg();   // 重新获取验证码
                     } else if (htmlbuffer.contains("密码错")) {
                         Toast toast = Toast.makeText(getBaseContext(), "密码错误，请重新输入", Toast.LENGTH_SHORT);
                         toast.show();
-                        // 重新获取验证码
-                        getImg();
+                        getImg();   // 重新获取验证码
                     } else if (htmlbuffer.contains("学号错")) {
                         Toast toast = Toast.makeText(getBaseContext(), "学号错误，请重新输入", Toast.LENGTH_SHORT);
                         toast.show();
-                        // 重新获取验证码
-                        getImg();
+                        getImg();   // 重新获取验证码
                     } else {
                         // 跳转到下个活动
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -240,7 +233,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     Looper.loop();
                     Log.d("1", "run: " + htmlbuffer);
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -249,7 +241,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     // 获取验证码
     void getImg() {
         try {
-            // TODO Auto-generated method stub
             double a = Math.random();
             String getImg = url + "/code.asp?id=!!!&random=" + a;
             URL u = new URL(getImg);
@@ -278,7 +269,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }
             });
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

@@ -1,4 +1,5 @@
 <TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@android:id/tabhost"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -27,7 +28,6 @@
                 android:orientation="vertical">
 
                 <LinearLayout
-
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
@@ -35,7 +35,8 @@
                     <Spinner
                         android:id="@+id/spinner"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:entries="@array/course_type"/>
 
                     <AutoCompleteTextView
                         android:id="@+id/input"
@@ -54,10 +55,26 @@
                         android:text="查询" />
                 </LinearLayout>
 
-                <WebView
-                    android:id="@+id/web"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="match_parent">
+
+                    <com.example.administrator.myapplication.MyWebView
+                        android:id="@+id/web"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/fb_add"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|end"
+                        android:layout_margin="30dp"
+                        android:src="@drawable/ic_add"
+                        app:elevation="3dp"
+                        app:backgroundTint="@color/yellow"
+                        app:rippleColor="@color/gray" />
+                </FrameLayout>
             </LinearLayout>
 
             <!--第2个页面-->
@@ -66,11 +83,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
-
-                <WebView
-                    android:id="@+id/web_view_2"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="match_parent">
+
+                    <WebView
+                        android:id="@+id/web_view_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/fb_delete"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|end"
+                        android:layout_margin="30dp"
+                        app:elevation="3dp"
+                        android:src="@drawable/ic_delete"
+                        app:backgroundTint="@color/yellow"
+                        app:rippleColor="@color/gray" />
+                </FrameLayout>
             </LinearLayout>
 
             <!--第3个页面-->

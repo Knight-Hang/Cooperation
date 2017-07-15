@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="choose_thread_num">
+        <item>课程编号</item>
+        <item>课程名称</item>
+        <item>主选班级</item>
+    </string-array>
+</resources>

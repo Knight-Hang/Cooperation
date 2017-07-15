@@ -4,6 +4,8 @@ import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -27,15 +29,26 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/*
+ * 期待加入的功能：
+ * 自动登陆SSL VPN(方便非内部网环境登陆)
+ * 验证码识别(用于自动登陆、选课)
+ * 选课功能(如果人数没有满则正常选课，人数满了则添加至后台时刻监控)
+ * 退课功能
+ * 抓取课程评价
+ */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private LocalActivityManager lam;
-    private WebView web;
+    private MyWebView web;
     private AutoCompleteTextView input;
     private Spinner spinner;
+    private FloatingActionButton add_course;
     private String cookie;
     private String url;
     private String xuan_ke ="";
@@ -59,9 +72,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         // 获取组件
         Button button = (Button) findViewById(R.id.send);
+        add_course = (FloatingActionButton) findViewById(R.id.fb_add);
+        FloatingActionButton remove_course = (FloatingActionButton) findViewById(R.id.fb_delete);
         input = (AutoCompleteTextView) findViewById(R.id.input);
         spinner = (Spinner) findViewById(R.id.spinner);
-        web = (WebView) findViewById(R.id.web);
+        web = (MyWebView) findViewById(R.id.web);
         WebView web2 = (WebView) findViewById(R.id.web_view_2);
         WebView web3 = (WebView) findViewById(R.id.web_view_3);
         Intent intent = getIntent();
@@ -88,8 +103,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         web2.loadData(xuan_ke, "text/html; charset=UTF-8", null);
         while (ke_cheng_biao.equals("")){}   // 等待页面获取
         web3.loadData(ke_cheng_biao, "text/html; charset=UTF-8", null);
-        // 查询按钮监听事件
+        // 监听事件
         button.setOnClickListener(this);
+        add_course.setOnClickListener(this);
+        remove_course.setOnClickListener(this);
+        // webview滚动监听事件
+        web.setOnScrollChangedCallback(new MyWebView.OnScrollChangedCallback() {
+            @Override
+            public void onScroll(int dx, int dy) {
+                // 当webview滚动时隐藏悬浮按钮，停止滚动时显示
+                add_course.hide();
+                Timer timer = new Timer(true);
+                TimerTask task = new TimerTask() {
+                    @Override
+                    public void run() {
+                        Looper.prepare();
+                        add_course.show();
+                        Looper.loop();
+                    }
+                };
+                timer.schedule(task, 300);
+            }
+        });
     }
     /*
      * 具体功能的实现方法
@@ -98,10 +133,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void modify_table(){
         // 过滤无关信息，改造表格
         query = query.replaceAll("备注</td></tr>", "备注</td><td>主选限制数</td><td>主选已选数</td><td>非主选限制数</td><td>非主选已选数</td></tr>");
-        query = query.replaceAll("<td>必<br>修</td><td>选<br>修</td>", "");
+//        query = query.replaceAll("<td>必<br>修</td><td>选<br>修</td>", "");
         query = query.replaceAll("<td>选课<br>人数</td>", "");
         query = query.replaceAll("<td><img [\\w\\W]{0,140}></td>", "</td>");
-        query = query.replaceAll("<td><input [\\w\\W]{0,50}修\"></td>","");
+//        query = query.replaceAll("<td><input [\\w\\W]{0,50}修\"></td>","");
         Log.d("1", "run: " + query);
         // 查找对应课程的课程编号
         String regex = "<td>([a-zA-z0-9]{2,})</td>"; // 课程编号(考虑MOOC的情况，前面有MC两个字母)
@@ -147,7 +182,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     part[i] = part[i].replaceAll("<tr>", "<tr bgcolor=\"yellow\">");
                 }
             } catch(Exception e) {
+                // 选课结束后人数信息将会变化
+                // 从主选人数、主选已选人数、非主选人数、非主选已选人数4项
+                // 变成限制人数、已选人数2项
+                // 导致正则匹配不成功从而触发ArrayList的越界异常
                 Log.d("1", "modify_table: 当前选课已经结束");
+                Looper.prepare();
+                Toast.makeText(MainActivity.this, "选课已经结束\n人数信息不再获取", Toast.LENGTH_SHORT).show();
+                Looper.loop();
             }
         }
         // 将每一行合并
@@ -160,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // 获取历史记录
     private void get_history() {
         SharedPreferences history_data = getSharedPreferences("history", MODE_PRIVATE);
-        String classes = "2015计算机科学与技术01\n" +
+        temp_history = "2015计算机科学与技术01\n" +
                 "2015计算机科学与技术02\n" +
                 "2015计算机科学与技术03\n" +
                 "2015计算机科学与技术04\n" +
@@ -169,7 +211,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 "2015软件工程02\n" +
                 "2015软件工程03\n" +
                 "2015网络工程01\n";
-        temp_history = classes;
         temp_history += history_data.getString("history", "");
         if (!"".equals(temp_history)) {
             String[] temp = temp_history.split("\n");
@@ -270,20 +311,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // 创建下拉菜单选项
     private void setSpinner() {
         type = 0;
-        final String arr[]=new String[]{"课程编号", "课程名称", "主选班级"};
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, arr);
-        spinner.setAdapter(arrayAdapter);
         // 注册事件
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Spinner spinner=(Spinner) parent;
-                if(spinner.getItemAtPosition(position)==arr[0])
-                    type = 1;
-                else if(spinner.getItemAtPosition(position)==arr[1])
-                    type = 2;
-                else if(spinner.getItemAtPosition(position)==arr[2])
-                    type = 4;
+                type = position + 1;
+                if (position == 2)
+                    type++;
+                Log.d("1", "onItemSelected type: " + type);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) { }
@@ -297,19 +332,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     protected void onResume() {
+        // 同上
         lam.dispatchResume();
         super.onResume();
     }
     // 点击事件
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.button) {
+        if (v.getId() == R.id.fb_add) {
+            Toast.makeText(MainActivity.this, "选课按钮", Toast.LENGTH_SHORT).show();
+        }
+        else if (v.getId() == R.id.fb_delete) {
+            Toast.makeText(MainActivity.this, "退课按钮", Toast.LENGTH_SHORT).show();
+        }
+        else if (v.getId() == R.id.send) {
             // 清除之前储存的信息
             main_limit.clear();
             main_chosen.clear();
             limit.clear();
             chosen.clear();
             QueryStr = input.getText().toString();
+            // 获取查询结果
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -326,8 +369,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     web.post(new Runnable() {
                         @Override
                         public void run() {
-                            web.getSettings().setDefaultTextEncodingName("UTF-8");//设置默认为utf-8
-                            web.loadData(query, "text/html; charset=UTF-8", null);//这种写法可以正确解码
+                            web.getSettings().setDefaultTextEncodingName("UTF-8");// 设置默认为utf-8
+                            web.loadData(query, "text/html; charset=UTF-8", null);// 这种写法可以正确解码
                         }
                     });
                 }
