@@ -6,7 +6,7 @@ import android.webkit.WebView;
 
 /**
  * OverWrite Webview to get scroll listener
- * 监听 webview 的滚动事件
+ * 通过自定义接口监听 webview 的滚动事件
  * Created by H.S.H on 2017/7/15.
  */
 

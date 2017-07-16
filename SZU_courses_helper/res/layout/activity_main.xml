@@ -117,6 +117,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
+
+            <!--第4个页面-->
+            <LinearLayout
+                android:id="@+id/tab_4"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <WebView
+                    android:id="@+id/web_view_4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
         </FrameLayout>
     </LinearLayout>
 </TabHost>

@@ -16,6 +16,7 @@ public class OfflineActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.offline_layout);
+        setTitle("离线模式");
         web = (WebView) findViewById(R.id.web);
         web.getSettings().setDefaultTextEncodingName("UTF-8");//设置默认为utf-8
         String temp = "<h1 align=\"center\">当前为离线状态或不处于校内网！</h1>\n" +
@@ -36,20 +37,20 @@ public class OfflineActivity extends AppCompatActivity {
                 if ("".equals(xuanke))
                     web.loadData("<h1 align=\"center\">系统没有选课结果的缓存！</h1>\n", "text/html; charset=UTF-8", null);
                 else
-                    web.loadData(xuanke, "text/html; charset=UTF-8", null);//这种写法可以正确解码
+                    web.loadData(xuanke, "text/html; charset=UTF-8", null);
                 xuanke = "";
             }
         });
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //查看缓存的课程表结果
+                // 查看缓存的课程表结果
                 SharedPreferences read = getSharedPreferences("buff", MODE_PRIVATE);
                 kechengbiao = read.getString("ke cheng biao", "");
                 if ("".equals(kechengbiao))
                     web.loadData("<h1 align=\"center\">系统没有课程表的缓存！</h1>\n", "text/html; charset=UTF-8", null);
                 else
-                    web.loadData(kechengbiao, "text/html; charset=UTF-8", null);//这种写法可以正确解码
+                    web.loadData(kechengbiao, "text/html; charset=UTF-8", null);
                 kechengbiao = "";
             }
         });

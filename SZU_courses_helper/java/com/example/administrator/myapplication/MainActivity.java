@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         web = (MyWebView) findViewById(R.id.web);
         WebView web2 = (WebView) findViewById(R.id.web_view_2);
         WebView web3 = (WebView) findViewById(R.id.web_view_3);
+        WebView web4 = (WebView) findViewById(R.id.web_view_4);
         Intent intent = getIntent();
         cookie = intent.getStringExtra("cookie");
         url = intent.getStringExtra("url");
@@ -98,11 +100,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         get_history();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, history);
         input.setAdapter(adapter);
-        // 加载2、3选项卡的页面信息
+        // 加载2、3、4选项卡的页面信息
         while (xuan_ke.equals("")){}         // 等待页面获取
         web2.loadData(xuan_ke, "text/html; charset=UTF-8", null);
         while (ke_cheng_biao.equals("")){}   // 等待页面获取
         web3.loadData(ke_cheng_biao, "text/html; charset=UTF-8", null);
+        web4.getSettings().setJavaScriptEnabled(true);
+        web4.setWebViewClient(new WebViewClient());
+        web4.loadUrl("http://sdt.jsmmzz.com/xuefen/index.php");
         // 监听事件
         button.setOnClickListener(this);
         add_course.setOnClickListener(this);
@@ -268,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tabHost.setup(lam);
         // 第1个页面
         TabHost.TabSpec tab1 = tabHost.newTabSpec("tab1")
-                .setIndicator("查课")
+                .setIndicator("课程查询")
                 .setContent(R.id.tab_1);
         tabHost.addTab(tab1);
         // 第2个页面
@@ -281,6 +286,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setIndicator("课程表")
                 .setContent(R.id.tab_3);
         tabHost.addTab(tab3);
+        // 第4个页面
+        TabHost.TabSpec tab4 = tabHost.newTabSpec("tab4")
+                .setIndicator("学分查询")
+                .setContent(R.id.tab_4);
+        tabHost.addTab(tab4);
     }
     // 创建菜单
     @Override
