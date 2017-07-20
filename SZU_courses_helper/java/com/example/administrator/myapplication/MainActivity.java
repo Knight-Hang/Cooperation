@@ -38,12 +38,12 @@ import java.util.regex.Pattern;
 /*
  * 期待加入的功能：
  * 自动登陆SSL VPN(方便非内部网环境登陆)
- * 验证码识别(用于自动登陆、选课)
  * 选课功能(如果人数没有满则正常选课，人数满了则添加至后台时刻监控)
  * 退课功能
  * 抓取课程评价
+ * 学分查询
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private LocalActivityManager lam;
     private MyWebView web;
@@ -52,8 +52,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FloatingActionButton add_course;
     private String cookie;
     private String url;
-    private String xuan_ke ="";
-    private String ke_cheng_biao ="";
+    private String xuan_ke = "";
+    private String ke_cheng_biao = "";
     private String query;
     private String QueryStr;
     private String query_encode;
@@ -66,6 +66,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayList<Integer> limit = new ArrayList<>();       // 非主选限制
     private ArrayList<Integer> chosen = new ArrayList<>();      // 非主选已选
     private ArrayAdapter<String> adapter;
+
+    private final String classes = "2015计算机科学与技术01\n" +
+            "2015计算机科学与技术02\n" +
+            "2015计算机科学与技术03\n" +
+            "2015计算机科学与技术04\n" +
+            "2015计算机科学与技术05\n" +
+            "2015软件工程01\n" +
+            "2015软件工程02\n" +
+            "2015软件工程03\n" +
+            "2015网络工程01\n";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         WebView web2 = (WebView) findViewById(R.id.web_view_2);
         WebView web3 = (WebView) findViewById(R.id.web_view_3);
         WebView web4 = (WebView) findViewById(R.id.web_view_4);
+        // 获取传递信息
         Intent intent = getIntent();
         cookie = intent.getStringExtra("cookie");
         url = intent.getStringExtra("url");
@@ -96,27 +107,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String temp = "<h1 align=\"center\">登陆成功,欢迎!</h1>\n";
         web.getSettings().setDefaultTextEncodingName("UTF-8");  // 设置默认为utf-8
         web.loadData(temp, "text/html; charset=UTF-8", null);   // 这种写法可以正确解码
-        // 生成历史纪录显示
+        // 获取之前储存的历史纪录
         get_history();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, history);
         input.setAdapter(adapter);
-        // 加载2、3、4选项卡的页面信息
-        while (xuan_ke.equals("")){}         // 等待页面获取
+        // 加载2、3、4、5选项卡的页面信息
+        while (xuan_ke.equals("")) {}         // 等待页面获取
         web2.loadData(xuan_ke, "text/html; charset=UTF-8", null);
-        while (ke_cheng_biao.equals("")){}   // 等待页面获取
+        while (ke_cheng_biao.equals("")) {}   // 等待页面获取
         web3.loadData(ke_cheng_biao, "text/html; charset=UTF-8", null);
         web4.getSettings().setJavaScriptEnabled(true);
         web4.setWebViewClient(new WebViewClient());
-        web4.loadUrl("http://sdt.jsmmzz.com/xuefen/index.php");
+        web4.loadUrl("http://sdt.jsmmzz.com/xuefen/index.php"); // 加载查询学分的网页
+        // http://www.szu.me/kc/index.php  课程评价网页
         // 监听事件
         button.setOnClickListener(this);
         add_course.setOnClickListener(this);
         remove_course.setOnClickListener(this);
-        // webview滚动监听事件
+        // webview滚动监听事件,当webview滚动时隐藏悬浮按钮,停止滚动时显示
         web.setOnScrollChangedCallback(new MyWebView.OnScrollChangedCallback() {
             @Override
             public void onScroll(int dx, int dy) {
-                // 当webview滚动时隐藏悬浮按钮，停止滚动时显示
                 add_course.hide();
                 Timer timer = new Timer(true);
                 TimerTask task = new TimerTask() {
@@ -131,16 +142,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+
     /*
      * 具体功能的实现方法
      */
     // 修改课程信息结果表格
-    private void modify_table(){
+    private void modify_table() {
         // 过滤无关信息，改造表格
         query = query.replaceAll("备注</td></tr>", "备注</td><td>主选限制数</td><td>主选已选数</td><td>非主选限制数</td><td>非主选已选数</td></tr>");
 //        query = query.replaceAll("<td>必<br>修</td><td>选<br>修</td>", "");
         query = query.replaceAll("<td>选课<br>人数</td>", "");
-        query = query.replaceAll("<td><img [\\w\\W]{0,140}></td>", "</td>");
+        query = query.replaceAll("<td><img [\\w\\W]{0,140}></td>", "</td>");    // 删除小望远镜图片
 //        query = query.replaceAll("<td><input [\\w\\W]{0,50}修\"></td>","");
         Log.d("1", "run: " + query);
         // 查找对应课程的课程编号
@@ -186,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (main_chosen_num < main_limit_num) {
                     part[i] = part[i].replaceAll("<tr>", "<tr bgcolor=\"yellow\">");
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 // 选课结束后人数信息将会变化
                 // 从主选人数、主选已选人数、非主选人数、非主选已选人数4项
                 // 变成限制人数、已选人数2项
@@ -204,24 +216,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         query = new_table;
     }
+
     // 获取历史记录
     private void get_history() {
         SharedPreferences history_data = getSharedPreferences("history", MODE_PRIVATE);
-        temp_history = "2015计算机科学与技术01\n" +
-                "2015计算机科学与技术02\n" +
-                "2015计算机科学与技术03\n" +
-                "2015计算机科学与技术04\n" +
-                "2015计算机科学与技术05\n" +
-                "2015软件工程01\n" +
-                "2015软件工程02\n" +
-                "2015软件工程03\n" +
-                "2015网络工程01\n";
-        temp_history += history_data.getString("history", "");
-        if (!"".equals(temp_history)) {
-            String[] temp = temp_history.split("\n");
-            Collections.addAll(history, temp);
-        }
+        String get_storage = history_data.getString("history", "");
+        if (get_storage.contains(classes))
+            temp_history = get_storage;
+        else
+            temp_history = get_storage + classes;
+        String[] temp = temp_history.split("\n");
+        Collections.addAll(history, temp);
     }
+
     // 获取课程表、选课结果
     private void get_course_table() {
         new Thread(new Runnable() {
@@ -241,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }).start();
     }
+
     // 获得相应课程的人数信息
     private String getRequest(String keyword) {
         try {
@@ -253,7 +261,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Reader r = new InputStreamReader(connection.getInputStream(), "GB2312");
             int c;
             String html = "";
-            while ((c = r.read()) != -1) {  html += (char) c;   }
+            while ((c = r.read()) != -1) {
+                html += (char) c;
+            }
             r.close();
             return html;
         } catch (Exception e) {
@@ -292,12 +302,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setContent(R.id.tab_4);
         tabHost.addTab(tab4);
     }
+
     // 创建菜单
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+
     // 菜单点击事件
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -318,6 +330,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return true;
     }
+
     // 创建下拉菜单选项
     private void setSpinner() {
         type = 0;
@@ -330,32 +343,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     type++;
                 Log.d("1", "onItemSelected type: " + type);
             }
+
             @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
+
     @Override
     protected void onPause() {
         // 重写的OnPause方法必须有，漏掉会错
         lam.dispatchPause(isFinishing());
         super.onPause();
     }
+
     @Override
     protected void onResume() {
         // 同上
         lam.dispatchResume();
         super.onResume();
     }
+
     // 点击事件
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.fb_add) {
             Toast.makeText(MainActivity.this, "选课按钮", Toast.LENGTH_SHORT).show();
-        }
-        else if (v.getId() == R.id.fb_delete) {
+        } else if (v.getId() == R.id.fb_delete) {
             Toast.makeText(MainActivity.this, "退课按钮", Toast.LENGTH_SHORT).show();
-        }
-        else if (v.getId() == R.id.send) {
+        } else if (v.getId() == R.id.send) {
             // 清除之前储存的信息
             main_limit.clear();
             main_chosen.clear();
@@ -386,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }).start();
             // 储存查询词
-            if(history.indexOf(QueryStr) == -1) {
+            if (history.indexOf(QueryStr) == -1) {
                 // 本地化储存
                 SharedPreferences save_history = getSharedPreferences("history", MODE_PRIVATE);
                 SharedPreferences.Editor editor = save_history.edit();
