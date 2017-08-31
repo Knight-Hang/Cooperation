@@ -98,7 +98,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom|end"
                         android:layout_margin="30dp"
-                        app:elevation="3dp"
+                        app:elevation="5dp"
                         android:src="@drawable/ic_delete"
                         app:backgroundTint="@color/yellow"
                         app:rippleColor="@color/gray" />

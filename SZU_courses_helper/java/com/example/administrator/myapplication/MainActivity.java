@@ -37,11 +37,11 @@ import java.util.regex.Pattern;
 
 /*
  * 期待加入的功能：
- * 自动登陆SSL VPN(方便非内部网环境登陆)
- * 选课功能(如果人数没有满则正常选课，人数满了则添加至后台时刻监控)
- * 退课功能
- * 抓取课程评价
- * 学分查询
+ * 【×】自动登陆SSL VPN(方便非内部网环境登陆)
+ * 【.】选课功能(如果人数没有满则正常选课，人数满了则添加至后台时刻监控)
+ * 【.】退课功能
+ * 【×】抓取课程评价
+ * 【√】学分查询
  */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         get_history();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, history);
         input.setAdapter(adapter);
-        // 加载2、3、4、5选项卡的页面信息
+        // 加载2、3、4选项卡的页面信息
         while (xuan_ke.equals("")) {}         // 等待页面获取
         web2.loadData(xuan_ke, "text/html; charset=UTF-8", null);
         while (ke_cheng_biao.equals("")) {}   // 等待页面获取
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button.setOnClickListener(this);
         add_course.setOnClickListener(this);
         remove_course.setOnClickListener(this);
-        // webview滚动监听事件,当webview滚动时隐藏悬浮按钮,停止滚动时显示
+        // webview滚动监听事件,当webview滚动时隐藏悬浮按钮,停止滚动后300ms显示
         web.setOnScrollChangedCallback(new MyWebView.OnScrollChangedCallback() {
             @Override
             public void onScroll(int dx, int dy) {
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Looper.loop();
                     }
                 };
-                timer.schedule(task, 300);
+                timer.schedule(task, 300);  // 300ms后执行延时任务
             }
         });
     }
@@ -203,9 +203,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // 从主选人数、主选已选人数、非主选人数、非主选已选人数4项
                 // 变成限制人数、已选人数2项
                 // 导致正则匹配不成功从而触发ArrayList的越界异常
-                Log.d("1", "modify_table: 当前选课已经结束");
+                Log.d("1", "modify_table: 此课程选课已结束");
                 Looper.prepare();
-                Toast.makeText(MainActivity.this, "选课已经结束\n人数信息不再获取", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "此课程选课已结束\n人数信息不再获取", Toast.LENGTH_SHORT).show();
                 Looper.loop();
             }
         }
@@ -367,9 +367,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.fb_add) {
-            Toast.makeText(MainActivity.this, "选课按钮", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "选课按钮,敬请期待...", Toast.LENGTH_SHORT).show();
         } else if (v.getId() == R.id.fb_delete) {
-            Toast.makeText(MainActivity.this, "退课按钮", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "退课按钮,敬请期待...", Toast.LENGTH_SHORT).show();
         } else if (v.getId() == R.id.send) {
             // 清除之前储存的信息
             main_limit.clear();
