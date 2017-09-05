@@ -38,15 +38,18 @@ import java.util.regex.Pattern;
 /*
  * 期待加入的功能：
  * 【×】自动登陆SSL VPN(方便非内部网环境登陆)
- * 【.】选课功能(如果人数没有满则正常选课，人数满了则添加至后台时刻监控)
+ * 【√】选课功能(如果人数没有满则正常选课，人数满了则添加至后台时刻监控)
  * 【.】退课功能
  * 【×】抓取课程评价
  * 【√】学分查询
+ * 【.】部分课程不能显示问题修复
  */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private LocalActivityManager lam;
     private MyWebView web;
+    private WebView web2;
+    private WebView web3;
     private AutoCompleteTextView input;
     private Spinner spinner;
     private FloatingActionButton add_course;
@@ -88,8 +91,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         input = (AutoCompleteTextView) findViewById(R.id.input);
         spinner = (Spinner) findViewById(R.id.spinner);
         web = (MyWebView) findViewById(R.id.web);
-        WebView web2 = (WebView) findViewById(R.id.web_view_2);
-        WebView web3 = (WebView) findViewById(R.id.web_view_3);
+        web2 = (WebView) findViewById(R.id.web_view_2);
+        web3 = (WebView) findViewById(R.id.web_view_3);
         WebView web4 = (WebView) findViewById(R.id.web_view_4);
         // 获取传递信息
         Intent intent = getIntent();
@@ -112,9 +115,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, history);
         input.setAdapter(adapter);
         // 加载2、3、4选项卡的页面信息
-        while (xuan_ke.equals("")) {}         // 等待页面获取
+        while (xuan_ke.equals("")) {
+        }         // 等待页面获取
         web2.loadData(xuan_ke, "text/html; charset=UTF-8", null);
-        while (ke_cheng_biao.equals("")) {}   // 等待页面获取
+        while (ke_cheng_biao.equals("")) {
+        }   // 等待页面获取
         web3.loadData(ke_cheng_biao, "text/html; charset=UTF-8", null);
         web4.getSettings().setJavaScriptEnabled(true);
         web4.setWebViewClient(new WebViewClient());
@@ -150,10 +155,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void modify_table() {
         // 过滤无关信息，改造表格
         query = query.replaceAll("备注</td></tr>", "备注</td><td>主选限制数</td><td>主选已选数</td><td>非主选限制数</td><td>非主选已选数</td></tr>");
-//        query = query.replaceAll("<td>必<br>修</td><td>选<br>修</td>", "");
+        query = query.replaceAll("<td>必<br>修</td><td>选<br>修</td>", "");
         query = query.replaceAll("<td>选课<br>人数</td>", "");
         query = query.replaceAll("<td><img [\\w\\W]{0,140}></td>", "</td>");    // 删除小望远镜图片
-//        query = query.replaceAll("<td><input [\\w\\W]{0,50}修\"></td>","");
+        query = query.replaceAll("<td><input [\\w\\W]{0,50}修\"></td>", "");
         Log.d("1", "run: " + query);
         // 查找对应课程的课程编号
         String regex = "<td>([a-zA-z0-9]{2,})</td>"; // 课程编号(考虑MOOC的情况，前面有MC两个字母)
@@ -164,50 +169,81 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String num_status = getRequest("/sele_count1.asp?course_no=" + matcher.group(1));
             Log.d("1", "课程编号 group1: " + matcher.group(1));
             Log.d("1", "num page: " + num_status);
-            // 抓取人数信息
-            String num_regex = "<br>主选学生限制人数：([\\d]+)&nbsp;&nbsp;主选学生已选人数：([\\d]+)<br>非主选学生限制人数：([\\d]+)&nbsp;&nbsp;非主选学生已选人数：([\\d]+)</body>";
-            Pattern pattern1 = Pattern.compile(num_regex);
-            Matcher matcher1 = pattern1.matcher(num_status);
-            while (matcher1.find()) {
-                int main_limit_num = Integer.parseInt(matcher1.group(1));
-                int main_chosen_num = Integer.parseInt(matcher1.group(2));
-                int limit_num = Integer.parseInt(matcher1.group(3));
-                int chosen_num = Integer.parseInt(matcher1.group(4));
-                main_limit.add(main_limit_num);
-                main_chosen.add(main_chosen_num);
-                limit.add(limit_num);
-                chosen.add(chosen_num);
-                Log.d("1", "main_limit num: " + main_limit_num);
-                Log.d("1", "main_chosen num: " + main_chosen_num);
-                Log.d("1", "limit num: " + limit_num);
-                Log.d("1", "chosen num: " + chosen_num);
+            /* 判断人数信息种类start    [2种: 4个数字\2个数字] */
+            String info_type_regex = "已选";
+            Pattern pattern0 = Pattern.compile(info_type_regex);
+            Matcher matcher0 = pattern0.matcher(num_status);
+            int count = 0;
+            while (matcher0.find())
+                count++;
+            Log.d("1", "count: " + count);
+            if (count == 2) {
+            /* 判断人数信息种类end */
+                // 抓取人数信息
+                String num_regex = "<br>主选学生限制人数：([\\d]+)&nbsp;&nbsp;主选学生已选人数：([\\d]+)<br>非主选学生限制人数：([\\d]+)&nbsp;&nbsp;非主选学生已选人数：([\\d]+)</body>";
+                Pattern pattern1 = Pattern.compile(num_regex);
+                Matcher matcher1 = pattern1.matcher(num_status);
+                while (matcher1.find()) {
+                    int main_limit_num = Integer.parseInt(matcher1.group(1));
+                    int main_chosen_num = Integer.parseInt(matcher1.group(2));
+                    int limit_num = Integer.parseInt(matcher1.group(3));
+                    int chosen_num = Integer.parseInt(matcher1.group(4));
+                    main_limit.add(main_limit_num);
+                    main_chosen.add(main_chosen_num);
+                    limit.add(limit_num);
+                    chosen.add(chosen_num);
+                    Log.d("1", "main_limit num: " + main_limit_num);
+                    Log.d("1", "main_chosen num: " + main_chosen_num);
+                    Log.d("1", "limit num: " + limit_num);
+                    Log.d("1", "chosen num: " + chosen_num);
+                }
+            /* 判断人数信息种类start */
             }
+            else if (count == 1) {
+                // 抓取人数信息
+                String num_regex = "<br>限制人数：([\\d]+)&nbsp;&nbsp;已选人数：([\\d]+)</body>";
+                Pattern pattern1 = Pattern.compile(num_regex);
+                Matcher matcher1 = pattern1.matcher(num_status);
+                while (matcher1.find()) {
+                    int limit_num = Integer.parseInt(matcher1.group(1));
+                    int chosen_num = Integer.parseInt(matcher1.group(2));
+                    main_limit.add(limit_num);
+                    main_chosen.add(chosen_num);
+                    Log.d("1", "limit num: " + limit_num);
+                    Log.d("1", "chosen num: " + chosen_num);
+                }
+            }
+            else
+                Log.d("1", "count error: ");
+            /* 判断人数信息种类end */
         }
         // 分割表格的每一行
         String[] part = query.split("</tr>");
         // 将人数信息添加到每一行末尾
         for (int i = 1; i < part.length - 1; i++) {
+            int main_limit_num = main_limit.get(i - 1);
+            int main_chosen_num = main_chosen.get(i - 1);
+            int limit_num;
+            int chosen_num;
             try {
-                int main_limit_num = main_limit.get(i - 1);
-                int main_chosen_num = main_chosen.get(i - 1);
-                int limit_num = limit.get(i - 1);
-                int chosen_num = chosen.get(i - 1);
-                part[i] += "<td>" + main_limit_num + "</td><td>" + main_chosen_num + "</td><td>"
-                        + limit_num + "</td><td>" + chosen_num + "</td></tr>";
-                // 高亮显示可选课程
-                if (main_chosen_num < main_limit_num) {
-                    part[i] = part[i].replaceAll("<tr>", "<tr bgcolor=\"yellow\">");
-                }
+                limit_num = limit.get(i - 1);
+                chosen_num = chosen.get(i - 1);
             } catch (Exception e) {
                 // 选课结束后人数信息将会变化
                 // 从主选人数、主选已选人数、非主选人数、非主选已选人数4项
                 // 变成限制人数、已选人数2项
+                // 或者MOOC的人数, 也是只显示两项
                 // 导致正则匹配不成功从而触发ArrayList的越界异常
-                Log.d("1", "modify_table: 此课程选课已结束");
-                Looper.prepare();
-                Toast.makeText(MainActivity.this, "此课程选课已结束\n人数信息不再获取", Toast.LENGTH_SHORT).show();
-                Looper.loop();
+                limit_num = 0;
+                chosen_num = 0;
             }
+            part[i] += "<td>" + main_limit_num + "</td><td>" + main_chosen_num + "</td><td>"
+                    + limit_num + "</td><td>" + chosen_num + "</td></tr>";
+            // 高亮显示可选课程
+            if (main_chosen_num < main_limit_num) {
+                part[i] = part[i].replaceAll("<tr>", "<tr bgcolor=\"yellow\">");
+            }
+
         }
         // 将每一行合并
         String new_table = "";
@@ -279,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     // 创建选项卡
     private void initial_tabHost() {
-        TabHost tabHost = (TabHost) findViewById(android.R.id.tabhost);
+        final TabHost tabHost = (TabHost) findViewById(android.R.id.tabhost);
         tabHost.setup(lam);
         // 第1个页面
         TabHost.TabSpec tab1 = tabHost.newTabSpec("tab1")
@@ -301,6 +337,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setIndicator("学分查询")
                 .setContent(R.id.tab_4);
         tabHost.addTab(tab4);
+        /* 点击选项卡刷新选课结果和课程表 */
+        tabHost.getTabWidget().getChildAt(1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tabHost.setCurrentTab(1);
+                xuan_ke = "";
+                ke_cheng_biao = "";
+                get_course_table();
+                while (xuan_ke.equals("")) {}         // 等待页面获取
+                web2.loadData(xuan_ke, "text/html; charset=UTF-8", null);
+                while (ke_cheng_biao.equals("")) {}   // 等待页面获取
+                web3.loadData(ke_cheng_biao, "text/html; charset=UTF-8", null);
+                Toast.makeText(MainActivity.this, "页面刷新", Toast.LENGTH_SHORT).show();
+            }
+        }); // 设置监听事件
+        tabHost.getTabWidget().getChildAt(2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tabHost.setCurrentTab(2);
+                xuan_ke = "";
+                ke_cheng_biao = "";
+                get_course_table();
+                while (xuan_ke.equals("")) {}         // 等待页面获取
+                web2.loadData(xuan_ke, "text/html; charset=UTF-8", null);
+                while (ke_cheng_biao.equals("")) {}   // 等待页面获取
+                web3.loadData(ke_cheng_biao, "text/html; charset=UTF-8", null);
+                Toast.makeText(MainActivity.this, "页面刷新", Toast.LENGTH_SHORT).show();
+            }
+        }); // 设置监听事件
+        /* 点击选项卡刷新选课结果和课程表 */
     }
 
     // 创建菜单
@@ -345,7 +411,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
     }
 
@@ -367,9 +434,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.fb_add) {
-            Toast.makeText(MainActivity.this, "选课按钮,敬请期待...", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(MainActivity.this, "选课按钮,敬请期待...", Toast.LENGTH_SHORT).show();
+            /* 选课功能 */
+            // 跳转到下个活动
+            Intent intent = new Intent(MainActivity.this, Choose_Course.class);
+            intent.putExtra("cookie", cookie);
+            intent.putExtra("url", url);
+            startActivity(intent);
+            /* 选课功能end */
         } else if (v.getId() == R.id.fb_delete) {
-            Toast.makeText(MainActivity.this, "退课按钮,敬请期待...", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(MainActivity.this, "退课按钮,敬请期待...", Toast.LENGTH_SHORT).show();
+            /* 退课功能 */
+            Intent intent = new Intent(MainActivity.this, Quit_Course.class);
+            intent.putExtra("cookie", cookie);
+            intent.putExtra("url", url);
+            startActivity(intent);
+            /* 退课功能 */
         } else if (v.getId() == R.id.send) {
             // 清除之前储存的信息
             main_limit.clear();

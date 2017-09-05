@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="课程编号： " />
+
+        <EditText
+            android:id="@+id/course_code_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="text"
+            android:maxLines="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="验 证 码  ： " />
+
+        <EditText
+            android:id="@+id/choose_code_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number"
+            android:maxLines="1" />
+
+        <ImageView
+            android:id="@+id/image_code"
+            android:layout_width="215px"
+            android:layout_height="110px"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="20dp"
+            android:scaleType="fitCenter" />
+
+    </LinearLayout>
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:checkedButton="@+id/requiered"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/requiered"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:text="必修" />
+
+        <RadioButton
+            android:id="@+id/elective"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="选修" />
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:text="取消" />
+
+        <Button
+            android:id="@+id/ensure"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="30dp"
+            android:layout_weight="1"
+            android:text="确定" />
+    </LinearLayout>
+
+    <WebView
+        android:id="@+id/show_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></WebView>
+
+</LinearLayout>

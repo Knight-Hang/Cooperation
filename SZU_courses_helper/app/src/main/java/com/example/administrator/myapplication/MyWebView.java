@@ -7,6 +7,8 @@ import android.webkit.WebView;
 /**
  * OverWrite Webview to get scroll listener
  * 通过自定义接口监听 webview 的滚动事件
+ * 在页面滚动的时候隐藏右下角的悬浮按钮
+ * 防止按钮遮挡课程信息
  * Created by H.S.H on 2017/7/15.
  */
 

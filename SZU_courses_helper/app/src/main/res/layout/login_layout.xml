@@ -53,14 +53,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="5dp"
             android:layout_weight="1"
             android:inputType="number" />
 
         <ImageView
             android:id="@+id/image"
-            android:layout_width="210px"
-            android:layout_height="100px"
+            android:layout_width="215px"
+            android:layout_height="110px"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="20dp"
             android:scaleType="fitCenter" />
